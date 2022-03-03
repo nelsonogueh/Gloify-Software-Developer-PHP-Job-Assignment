@@ -7,10 +7,12 @@ class Store {
     private $requestMethod;
     private $userId;
 
+    private $store_name     = null;
+    private $store_location = null;
+
     public function __construct( $db )
     {    
         $this->db = $db;
-        // $this->userId = (isset($_SESSION['user_id']))? $_SESSION['user_id'] : 1;
     }
 
 
@@ -33,10 +35,30 @@ class Store {
             return json_encode($response);
     }
 
-    function add_new_store( $user_id, $store_name ="", $store_location="" ){
-        $sql = "INSERT INTO stores (store_name, store_location, owner_id ) VALUES ('$store_name', '$store_location', '$user_id')";
+    function add_new_store( $store_details = [] ){
+
+        // Assign values to the variables if they are available
+        foreach ($store_details as $key => $value)
+        {
+            switch($key){
+                case "store_name":
+                    $this->store_name = $value;
+                    break;
+                case "store_location":
+                    $this->store_location = $value;
+                    break;
+                case "user_id":
+                    $this->user_id = $value;
+                    break;
+
+                default;
+
+            }
+        }
+
+        $sql = "INSERT INTO stores (store_name, store_location, owner_id ) VALUES ('$this->store_name', '$this->store_location', '$this->user_id')";
         try {
-            $insert = $this->db->query($sql);
+            $insert                 = $this->db->query($sql);
             $response['status']     = 'success';
         } 
         catch (Exception $e) {
@@ -47,28 +69,3 @@ class Store {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-// try {
-//     $result = $db->query("SELECT * FROM books ORDER BY id DESC");
-// } catch (Exception $e) {
-//     echo "Unable to retrieve books. </br>";
-//     echo "Error: ".$e->getMessage()."</br>";
-//     exit;
-// }	
-//             while($row = $result->fetch(PDO::FETCH_ASSOC)) { 		
-//                 echo "<tr>";
-//                 echo "<td>".$row['title']."</td>";
-//                 echo "<td>".$row['author']."</td>";
-//                 echo "<td>".$row['year']."</td>";	
-//                 echo "<td><a href=\"edit.php?id=$row[id]\"> Edit </a></td>";
-//                 echo "<td><a href=\"delete.php?id=$row[id]\" onClick=\"return confirm('Are you sure you want to delete this book?')\">Delete</a></td></tr>";
-//             }

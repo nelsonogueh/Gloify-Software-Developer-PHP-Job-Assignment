@@ -1,8 +1,7 @@
 <?php
     $db_host = 'localhost';
-
-    $db_user = 'admin';
-    $db_pass = 'admin';
+    $db_user = 'admin'; // Modify to your own db user
+    $db_pass = 'admin'; // Modify to your own db password
 
 try {
   $db = new PDO("mysql:host=$db_host;dbname=gloify_book_db", $db_user, $db_pass);

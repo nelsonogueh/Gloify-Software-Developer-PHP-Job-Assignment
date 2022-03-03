@@ -2,16 +2,29 @@
     
 class Book {
 
-    private $db;
+    private  $db;
+    private  $helpers_functions;
+    private $title, $google_id, $isbn, $year, $thumbnail, $description, $author;
+    private $store_id, $copies;
+    
 
     public function __construct( $db )
-    {    
-        $this->db = $db;
+    {   
+        include_once('../../helpers/functions.php');
+
+        $this->db                   = $db;
+        $this->helpers_functions    = new HelperFunctions;
+
+         $this->title = $this->google_id = $this->isbn= $this->year = $this->thumbnail = $this->description = $this->author="";
+         $this->store_id = $this->copies = 0;
+
     }
 
 
     // Fetch books with store id
     function fetch_books_with_store_id( $store_id ){
+        // $this->helpers_functions->deny_access_if_not_authenticated();
+        
         $sql = "SELECT * FROM books WHERE store_id = '$store_id'";
     
         $result = [];
@@ -52,9 +65,53 @@ class Book {
             return json_encode($response);
     }
 
-    // Add new book
-    function add_new_book( $title, $google_id="", $author="", $store_id=0, $copies=0, $isbn="", $year="", $thumbnail="", $description="" ){
-        $sql = "INSERT INTO books (title, google_id, author, store_id, copies, isbn, year, thumbnail, description) VALUES( '$title', '$google_id', '$author', '$store_id', '$copies', '$isbn', '$year', '$thumbnail', '$description' )";
+    /**
+     * Adds new book
+     *
+     * @param array $book_meta
+     * @return json_array $response[]
+     */
+    function add_new_book( $book_meta = [] )
+    {
+        // Assign values to the variables if they are available
+        foreach ($book_meta as $key => $value)
+        {
+            switch($key){
+                case "title":
+                    $this->title = $value;
+                    break;
+                case "google_id":
+                    $this->google_id = $value;
+                    break;
+                case "isbn":
+                    $this->isbn = $value;
+                    break;
+                case "year":
+                    $this->year = $value;
+                    break;
+                case "thumbnail":
+                    $this->thumbnail = $value;
+                    break;
+                case "description":
+                    $this->description = $value;
+                    break;
+                case "author":
+                    $this->author = $value;
+                    break;
+                case "store_id":
+                    $this->store_id = $value;
+                    break;
+                case "copies":
+                    $this->copies = $value;
+                    break;
+
+                default;
+
+            }
+        }
+
+     
+        $sql = "INSERT INTO books (title, google_id, author, store_id, copies, isbn, year, thumbnail, description) VALUES( '$this->title', '$this->google_id', '$this->author', '$this->store_id', '$this->copies', '$this->isbn', '$this->year', '$this->thumbnail', '$this->description' )";
         try {
             $query = $this->db->query($sql);
             if($query->rowCount() > 0){
@@ -74,19 +131,63 @@ class Book {
     }
 
     // Add new book
-    function update_book( $book_id=0, $title="", $google_id="", $author="", $store_id=0, $copies=0, $isbn="", $year="", $thumbnail="", $description="" ){
+    function update_book( $book_id=0, $book_meta = [] ){
+        if( $book_id == 0 ){
+            $response['status']     = 'error';
+            $response['message']    = 'Sorry, You have supplied invalid book id. Please try again';
+            return json_encode( $response );
+            die();
+        }
+
+        // Assign values to the variables if they are available
+        foreach ($book_meta as $key => $value)
+        {
+            switch($key){
+                case "title":
+                    $this->title = $value;
+                    break;
+                case "google_id":
+                    $this->google_id = $value;
+                    break;
+                case "isbn":
+                    $this->isbn = $value;
+                    break;
+                case "year":
+                    $this->year = $value;
+                    break;
+                case "thumbnail":
+                    $this->thumbnail = $value;
+                    break;
+                case "description":
+                    $this->description = $value;
+                    break;
+                case "author":
+                    $this->author = $value;
+                    break;
+                case "store_id":
+                    $this->store_id = $value;
+                    break;
+                case "copies":
+                    $this->copies = $value;
+                    break;
+
+                default;
+
+            }
+        }
+
         $sql = "UPDATE books 
         set 
         
-            title           = '$title', 
-            google_id       = '$google_id', 
-            author          = '$author', 
-            store_id        = '$store_id', 
-            copies          = '$copies', 
-            isbn            = '$isbn', 
-            year            = '$year', 
-            thumbnail       = '$thumbnail', 
-            description     = '$description'
+            title           = '$this->title', 
+            google_id       = '$this->google_id', 
+            author          = '$this->author', 
+            store_id        = '$this->store_id', 
+            copies          = '$this->copies', 
+            isbn            = '$this->isbn', 
+            year            = '$this->year', 
+            thumbnail       = '$this->thumbnail', 
+            description     = '$this->description'
         
             WHERE id        = '$book_id'";
 
@@ -112,29 +213,3 @@ class Book {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-// try {
-//     $result = $db->query("SELECT * FROM books ORDER BY id DESC");
-// } catch (Exception $e) {
-//     echo "Unable to retrieve books. </br>";
-//     echo "Error: ".$e->getMessage()."</br>";
-//     exit;
-// }	
-//             while($row = $result->fetch(PDO::FETCH_ASSOC)) { 		
-//                 echo "<tr>";
-//                 echo "<td>".$row['title']."</td>";
-//                 echo "<td>".$row['author']."</td>";
-//                 echo "<td>".$row['year']."</td>";	
-//                 echo "<td><a href=\"edit.php?id=$row[id]\"> Edit </a></td>";
-//                 echo "<td><a href=\"delete.php?id=$row[id]\" onClick=\"return confirm('Are you sure you want to delete this book?')\">Delete</a></td></tr>";
-//             }

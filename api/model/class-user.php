@@ -18,7 +18,8 @@ class User {
     }
 
 
-    function user_sign_in( $username, $password ){
+    public function user_sign_in( $username, $password ){
+
         $sql = 'SELECT * FROM users WHERE (username=? AND  password=?)';
 
         try {
